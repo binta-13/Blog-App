@@ -1,9 +1,11 @@
 <template>
-  <div>
+  <v-container>
     <h1>Blog Post List</h1>
-    <div v-if="loading">Loading</div>
+    <v-container loading v-if="loading">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </v-container>
     <BlogPostList v-if="posts" :posts="posts" />
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -13,24 +15,16 @@ export default {
   components: {
     BlogPostList,
   },
-  data() {
-    return {
-      posts: [],
-      loading: false,
-    };
+  computed: {
+    posts() {
+      return this.$store.state.posts;
+    },
+    loading() {
+      return this.$store.state.loading;
+    },
   },
-  async mounted() {
-    this.loading = true;
-    try {
-      const response = await this.$axios.get("/posts");
-      if (response) {
-        this.posts = response.data;
-        this.loading = false;
-      }
-    } catch (error) {
-      this.loading = false;
-      console.error(error);
-    }
+  async asyncData({ store }) {
+    await store.dispatch('fetchPosts');
   },
 };
 </script>
